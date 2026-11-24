@@ -1,0 +1,43 @@
+#!/bin/bash
+set -u
+dir="$HOME/Library/Application Support/Hands"
+app="$HOME/Applications/Hands.app"
+
+if [ -n "${SSH_ORIGINAL_COMMAND:-}" ]; then
+  request="$SSH_ORIGINAL_COMMAND"
+elif [ $# -gt 0 ]; then
+  request="$1"
+else
+  IFS= read -r -t 5 request || true
+fi
+request="$(printf '%s' "${request:-}" | /usr/bin/tr -d '[:space:]')"
+
+running() { /usr/bin/pgrep -x -u "$(/usr/bin/id -u)" HandTracking >/dev/null; }
+state() { running && /bin/cat "$dir/state" 2>/dev/null || echo off; }
+
+case "$request" in
+  status) state; exit 0 ;;
+  on|off) ;;
+  *) echo "Solo: on, off, status" >&2; exit 64 ;;
+esac
+
+if ! running; then
+  [ "$request" = off ] && { echo "Hands down"; exit 0; }
+  /usr/bin/open -g "$app" || { echo "No se pudo abrir Hands" >&2; exit 1; }
+fi
+
+umask 077
+/bin/mkdir -p "$dir"
+tmp="$(/usr/bin/mktemp "$dir/.command.XXXXXX")"
+printf '%s' "$request" > "$tmp"
+/bin/mv -f "$tmp" "$dir/command"
+
+for _ in $(/usr/bin/seq 1 50); do
+  if [ ! -e "$dir/command" ] && [ "$(state)" = "$request" ]; then
+    [ "$request" = on ] && echo "Hands on" || echo "Hands down"
+    exit 0
+  fi
+  /bin/sleep 0.1
+done
+echo "Hands no respondió" >&2
+exit 1
