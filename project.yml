@@ -1,0 +1,50 @@
+name: HandTracking
+options:
+  bundleIdPrefix: com.sus
+  deploymentTarget:
+    macOS: "15.0"
+packages:
+  HandKit:
+    path: .
+configFiles:
+  Debug: Local.xcconfig
+  Release: Local.xcconfig
+targets:
+  HandTracking:
+    type: application
+    platform: macOS
+    sources: [App]
+    dependencies:
+      - package: HandKit
+        product: HandCore
+      - package: HandKit
+        product: HandVision
+    info:
+      path: App/Info.plist
+      properties:
+        CFBundleName: Hands
+        CFBundleDisplayName: Hands
+        CFBundleShortVersionString: "0.1.0"
+        CFBundleVersion: "1"
+        LSUIElement: true
+        NSCameraUsageDescription: Hand Tracking usa la cámara para leer la posición de tus manos. El video se procesa en esta Mac y no se guarda.
+        NSCameraUseContinuityCameraDeviceType: true
+        NSCameraReactionEffectGesturesEnabledDefault: false
+    entitlements:
+      path: App/HandTracking.entitlements
+      properties:
+        com.apple.security.device.camera: true
+    settings:
+      base:
+        PRODUCT_BUNDLE_IDENTIFIER: com.sus.handtracking
+        SWIFT_VERSION: "5.0"
+        ENABLE_HARDENED_RUNTIME: true
+        CODE_SIGN_STYLE: Manual
+        CODE_SIGN_IDENTITY: Apple Development
+        PROVISIONING_PROFILE_SPECIFIER: ""
+        GENERATE_INFOPLIST_FILE: false
+schemes:
+  HandTracking:
+    build:
+      targets:
+        HandTracking: all
