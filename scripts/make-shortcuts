@@ -1,0 +1,25 @@
+#!/bin/bash
+set -euo pipefail
+root="$(cd "$(dirname "$0")/.." && pwd)"
+out="${OUT:-$root/build.noindex/shortcuts}"
+team="$(/usr/bin/sed -nE 's/^[[:space:]]*DEVELOPMENT_TEAM[[:space:]]*=[[:space:]]*([A-Z0-9]{10})[[:space:]]*$/\1/p' "$root/Local.xcconfig" | /usr/bin/head -1)"
+[ -n "$team" ] || { echo "Falta DEVELOPMENT_TEAM en Local.xcconfig" >&2; exit 1; }
+
+/bin/mkdir -p "$out"
+make_one() {
+  local source="$root/shortcuts/$1.json" name="$2" tmp
+  tmp="$(/usr/bin/mktemp -d)"
+  /usr/bin/sed "s/TEAM_ID/$team/" "$source" > "$tmp/in.json"
+  /usr/bin/plutil -convert binary1 -o "$tmp/in.shortcut" "$tmp/in.json"
+  /usr/bin/shortcuts sign --mode people-who-know-me --input "$tmp/in.shortcut" --output "$out/$name.shortcut" 2> "$tmp/err" \
+    || { /bin/cat "$tmp/err" >&2; exit 1; }
+  /bin/rm -rf "$tmp"
+  echo "$out/$name.shortcut"
+}
+make_one hands-on "Hands on"
+make_one hands-down "Hands down"
+if [ "${OPEN:-1}" = 1 ]; then
+  /usr/bin/open "$out/Hands on.shortcut"
+  read -r -p "Agrega «Hands on» y pulsa Enter para abrir el segundo… " _
+  /usr/bin/open "$out/Hands down.shortcut"
+fi

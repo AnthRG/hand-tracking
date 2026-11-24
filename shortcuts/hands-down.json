@@ -1,0 +1,25 @@
+{
+  "WFWorkflowMinimumClientVersion": 900,
+  "WFWorkflowMinimumClientVersionString": "900",
+  "WFWorkflowClientVersion": "3000",
+  "WFWorkflowIcon": {
+    "WFWorkflowIconStartColor": 4292093695,
+    "WFWorkflowIconGlyphNumber": 59511
+  },
+  "WFWorkflowImportQuestions": [],
+  "WFWorkflowTypes": [],
+  "WFWorkflowInputContentItemClasses": [],
+  "WFWorkflowActions": [
+    {
+      "WFWorkflowActionIdentifier": "com.sus.handtracking.HandsDownIntent",
+      "WFWorkflowActionParameters": {
+        "AppIntentDescriptor": {
+          "TeamIdentifier": "TEAM_ID",
+          "BundleIdentifier": "com.sus.handtracking",
+          "Name": "Hands",
+          "AppIntentIdentifier": "HandsDownIntent"
+        }
+      }
+    }
+  ]
+}
